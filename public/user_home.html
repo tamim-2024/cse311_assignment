@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Update Profile</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #f4f4f4;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            width: 400px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        .container h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: black;
+        }
+
+        .form {
+            margin-bottom: 15px;
+        }
+
+        .form label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .form-control {
+            width: calc(100% - 22px);
+            height: 40px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            font-size: 16px;
+        }
+
+        .btn-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn {
+            width: 48%;
+            height: 40px;
+            background-color: green;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
+        }
+
+        #logoutBtn {
+            background-color: red;
+            padding: 10px 20px;
+            margin: 20px auto;
+            display: block;
+        }
+
+        #logoutBtn:hover {
+            background-color: darkred;
+        }
+
+        #deleteBtn {
+            background-color: #ff4500;
+            padding: 10px 20px;
+            margin: 20px auto;
+            display: block;
+        }
+
+        #deleteBtn:hover {
+            background-color: #cc3700;
+        }
+
+        #profile_picture {
+            display: none;
+        }
+        
+        .profile-picture {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .profile-picture img {
+            max-width: 100px;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div id="registrationForm">
+            <h1>Update Form</h1>
+            <div class="profile-picture">
+                <img id="currentProfilePicture" src="" alt="Profile Picture">
+                <br>
+                <button class="btn" id="changePhotoBtn" onclick="document.getElementById('profile_picture').click()" disabled>Change Photo</button>
+                <input type="file" id="profile_picture" accept="image/*">
+            </div>
+            <div class="form">
+                <label for="first_name">First Name :</label>
+                <input id="first_name" type="text" class="form-control" required disabled>
+            </div>
+            <div class="form">
+                <label for="last_name">Last Name :</label>
+                <input id="last_name" type="text" class="form-control" required disabled>
+            </div>
+            <div class="form">
+                <label for="gender">Gender:</label>
+                <input id="gender" type="text" class="form-control" required disabled>
+            </div>
+            <div class="form">
+                <label for="date">Date of Birth :</label>
+                <input id="date" type="text" class="form-control" required disabled>
+            </div>
+            <div class="form">
+                <label for="email">Email :</label>
+                <input id="email" type="text" class="form-control" required disabled>
+            </div>
+            <div class="form">
+                <label for="password">Password</label>
+                <input id="password" type="password" class="form-control" required disabled>
+            </div>
+            <div class="btn-container">
+                <button class="btn" id="enableEditBtn" onclick="toggleEditing()">Enable Editing</button>
+                <button class="btn" id="updateBtn" onclick="updateData()" style="display: none;">Update</button>
+            </div>
+            
+            <div class="btn-container">
+                <button class="btn" id="logoutBtn" onclick="logout()">Logout</button>
+                <button class="btn" id="deleteBtn" onclick="deleteUser()"  disabled>Delete User</button>
+
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const loggedInUser = JSON.parse(window.localStorage.getItem('user'));
+
+        function enableEditing() {
+            const inputs = document.querySelectorAll('.form-control');
+            inputs.forEach(input => {
+                input.removeAttribute('disabled');
+            });
+            document.getElementById('updateBtn').disabled = false;
+            document.getElementById('deleteBtn').disabled = false;
+        }
+        function toggleEditing() {
+    const enableEditBtn = document.getElementById('enableEditBtn');
+    const updateBtn = document.getElementById('updateBtn');
+    const deleteBtn = document.getElementById('deleteBtn');
+    const changePhotoBtn = document.getElementById('changePhotoBtn'); 
+    const inputs = document.querySelectorAll('.form-control');
+    
+    if (enableEditBtn.innerText === 'Enable Editing') {
+        enableEditBtn.innerText = 'Cancel';
+        updateBtn.style.display = 'block';
+        deleteBtn.disabled = false;
+        changePhotoBtn.disabled = false; 
+        inputs.forEach(input => {
+            input.removeAttribute('disabled');
+        });
+    } else {
+        enableEditBtn.innerText = 'Enable Editing';
+        updateBtn.style.display = 'none';
+        deleteBtn.disabled = true;
+        changePhotoBtn.disabled = true; 
+        inputs.forEach(input => {
+            input.setAttribute('disabled', 'disabled');
+        });
+    }
+}
+
+
+
+
+        function updateData() {
+            const formData = new FormData();
+            formData.append('email', loggedInUser.email);
+            formData.append('fname', document.getElementById("first_name").value);
+            formData.append('lname', document.getElementById("last_name").value);
+            formData.append('gender', document.getElementById("gender").value);
+            formData.append('dob', document.getElementById("date").value);
+            formData.append('password', document.getElementById("password").value);
+
+            const profilePicture = document.getElementById('profile_picture').files[0];
+            if (profilePicture) {
+                formData.append('profile_picture', profilePicture);
+            }
+
+            fetch('http://localhost:3000/update_user', {
+                method: 'POST',
+                body: formData
+            })
+                .then(res => res.json())
+                .then(data => {
+                    console.log(data);
+                    alert('Profile updated successfully!');
+                })
+                .catch(error => console.error('Error updating data:', error));
+        }
+
+        function logout() {
+            window.localStorage.removeItem('user');
+            window.location.href = "./login.html";
+        }
+
+        function deleteUser() {
+            const userEmail = loggedInUser.email;
+
+            fetch(`http://localhost:3000/delete_user/${userEmail}`, {
+                method: 'DELETE',
+            })
+                .then(res => res.json())
+                .then(data => {
+                    console.log(data);
+                    alert('Account deleted successfully!');
+                    window.localStorage.removeItem('user');
+                    window.location.href = './login.html';
+                })
+                .catch(error => console.error('Error deleting user:', error));
+        }
+
+
+        fetch('http://localhost:3000/home_page', {
+    method: 'POST',
+    headers: {
+        'Accept': 'application/json, text/plain, */*',
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ email: loggedInUser.email })
+})
+    .then(res => res.json())
+    .then(data => {
+        console.log(data);
+        const userData = data.result[0];
+        const dob = new Date(userData.dob);
+        const formattedDob = dob.toDateString();
+
+        document.getElementById("date").value = formattedDob;
+        document.getElementById("first_name").value = userData.fname;
+        document.getElementById("last_name").value = userData.lname;
+        document.getElementById("gender").value = userData.gender;
+        document.getElementById("email").value = userData.email;
+        document.getElementById("password").value = userData.password;
+
+       
+        if (userData.profile_picture && userData.profile_picture.startsWith('data:image')) {
+            document.getElementById("currentProfilePicture").src = userData.profile_picture;
+        } else if (userData.profile_picture) { 
+            document.getElementById("currentProfilePicture").src = `http://localhost:3000/image/${userData.profile_picture}`;
+        }
+    })
+    .catch(error => console.error('Error fetching data:', error));
+
+    </script>
+</body>
+
+</html>
