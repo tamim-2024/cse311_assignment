@@ -28,10 +28,12 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 const connection = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  database: 'assignment'
+  host: 'sql10.freemysqlhosting.net',
+  user: 'sql10710332',
+  password: 'vNii1uGcVe',
+  database: 'sql10710332'
 });
+
 connection.connect(err => {
   if (err) {
     console.log(err);
