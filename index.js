@@ -40,7 +40,7 @@ connection.connect(err => {
   }
 });
 app.get('/', function(req, res) {
-  res.sendfile(__dirname + '/public/login.html');
+  res.sendFile(__dirname + '/public/login.html');
 });
 
 app.post('/add_user', upload.single('profile_picture'), function (req, res) {
